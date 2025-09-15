@@ -2,7 +2,9 @@ import Redis from "ioredis";
 
 const redis = new Redis(process.env.REDIS_URL, {
   password: process.env.REDIS_TOKEN,
-  tls: { rejectUnauthorized: false }
+  tls: { rejectUnauthorized: false },
+  maxRetriesPerRequest: null,
+  enableReadyCheck: false
 });
 
 export default async function handler(req, res) {
