@@ -1,15 +1,18 @@
-import Redis from "ioredis";
 
-const redis = new Redis(process.env.REDIS_URL, {
-  password: process.env.REDIS_TOKEN,
-  tls: { rejectUnauthorized: false },
-  maxRetriesPerRequest: 1,
-  enableReadyCheck: false,
-  connectTimeout: 5000
-});
+let executes = 0;
+let onlineUsers = new Map(); // key = userid, value = { username, lastSeen }
+
+function cleanup() {
+  const now = Date.now();
+  for (const [userid, info] of onlineUsers.entries()) {
+    if (now - info.lastSeen > 60000) {
+      onlineUsers.delete(userid);
+    }
+  }
+}
 
 export default async function handler(req, res) {
-  const action = req.query.action; // ?action=execute | status | reset
+  const action = req.query.action;
 
   try {
     let body = {};
@@ -24,35 +27,42 @@ export default async function handler(req, res) {
     // 📌 EXECUTE
     if (action === "execute" && req.method === "POST") {
       const { username, userid } = body;
-
-      await redis.incr("executes");
+      executes++;
 
       if (username && userid) {
-        await redis.sadd("online_users", `${username} (${userid})`);
+        onlineUsers.set(userid, { username, lastSeen: Date.now() });
       }
 
-      const executes = (await redis.get("executes")) || 0;
-      const online = await redis.smembers("online_users");
+      cleanup();
 
-      return res.status(200).json({ executes: Number(executes), online });
+      return res.status(200).json({
+        executes,
+        online: Array.from(onlineUsers.values()).map(
+          (u) => `${u.username}`
+        )
+      });
     }
 
     // 📌 STATUS
     if (action === "status" && req.method === "GET") {
-      const executes = (await redis.get("executes")) || 0;
-      const online = await redis.smembers("online_users");
-      return res.status(200).json({ executes: Number(executes), online });
+      cleanup();
+      return res.status(200).json({
+        executes,
+        online: Array.from(onlineUsers.values()).map(
+          (u) => `${u.username}`
+        )
+      });
     }
 
     // 📌 RESET
     if (action === "reset" && req.method === "GET") {
-      await redis.set("executes", 0);
-      await redis.del("online_users");
+      executes = 0;
+      onlineUsers.clear();
       return res.status(200).json({ message: "Reset done" });
     }
 
     return res.status(400).json({ error: "Invalid action or method" });
   } catch (err) {
-    return res.status(500).json({ error: err.message || "Internal Server Error" });
+    return res.status(500).json({ error: err.message });
   }
 }
