@@ -3,8 +3,9 @@ import Redis from "ioredis";
 const redis = new Redis(process.env.REDIS_URL, {
   password: process.env.REDIS_TOKEN,
   tls: { rejectUnauthorized: false },
-  maxRetriesPerRequest: null,
-  enableReadyCheck: false
+  maxRetriesPerRequest: 1,
+  enableReadyCheck: false,
+  connectTimeout: 5000
 });
 
 export default async function handler(req, res) {
@@ -15,7 +16,7 @@ export default async function handler(req, res) {
     if (req.method === "POST") {
       try {
         body = typeof req.body === "string" ? JSON.parse(req.body) : req.body;
-      } catch (e) {
+      } catch {
         body = {};
       }
     }
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
         await redis.sadd("online_users", `${username} (${userid})`);
       }
 
-      const executes = await redis.get("executes");
+      const executes = (await redis.get("executes")) || 0;
       const online = await redis.smembers("online_users");
 
       return res.status(200).json({ executes: Number(executes), online });
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
 
     // 📌 STATUS
     if (action === "status" && req.method === "GET") {
-      const executes = await redis.get("executes") || 0;
+      const executes = (await redis.get("executes")) || 0;
       const online = await redis.smembers("online_users");
       return res.status(200).json({ executes: Number(executes), online });
     }
@@ -52,6 +53,6 @@ export default async function handler(req, res) {
 
     return res.status(400).json({ error: "Invalid action or method" });
   } catch (err) {
-    return res.status(500).json({ error: err.message });
+    return res.status(500).json({ error: err.message || "Internal Server Error" });
   }
 }
