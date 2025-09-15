@@ -1,8 +1,17 @@
-let count = 0;
-let onlineUsers = new Set();
+import Redis from "ioredis";
 
-export default function handler(req, res) {
-  count = 0;
-  onlineUsers.clear();
-  res.status(200).json({ message: "Reset done" });
+const redis = new Redis(process.env.REDIS_URL, {
+  password: process.env.REDIS_TOKEN,
+  tls: { rejectUnauthorized: false }
+});
+
+export default async function handler(req, res) {
+  try {
+    await redis.set("executes", 0);
+    await redis.del("online_users");
+
+    res.status(200).json({ message: "Reset done" });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 }
