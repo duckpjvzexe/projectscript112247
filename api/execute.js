@@ -1,19 +1,29 @@
-let count = 0;
-let onlineUsers = new Set();
+import Redis from "ioredis";
 
-export default function handler(req, res) {
-  if (req.method === "POST") {
-    try {
-      const { username, userid } = req.body;
-      count++;
-      if (username && userid) {
-        onlineUsers.add(`${username} (${userid})`);
-      }
-      res.status(200).json({ executes: count, online: Array.from(onlineUsers) });
-    } catch (e) {
-      res.status(400).json({ error: "Invalid request" });
+const redis = new Redis(process.env.REDIS_URL, {
+  password: process.env.REDIS_TOKEN,
+  tls: { rejectUnauthorized: false }
+});
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const { username, userid } = req.body;
+
+    await redis.incr("executes");
+
+    if (username && userid) {
+      await redis.sadd("online_users", `${username} (${userid})`);
     }
-  } else {
-    res.status(405).json({ error: "Method not allowed" });
+
+    const executes = await redis.get("executes");
+    const online = await redis.smembers("online_users");
+
+    res.status(200).json({ executes: Number(executes), online });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 }
