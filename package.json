@@ -1,5 +1,6 @@
 {
-  "name": "my-api",
+  "name": "duck-x-hub-api",
   "version": "1.0.0",
-  "dependencies": {}
+  "private": true,
+  "type": "module"
 }
