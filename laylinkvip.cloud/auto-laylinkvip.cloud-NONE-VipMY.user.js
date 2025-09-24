@@ -1,7 +1,11 @@
 // ==UserScript==
-// @name            Auto LaylinkVIP
+// @name         Auto Minuc + LaylinkVIP
+// @namespace    http://tampermonkey.net/
+// @version      1.0
 // @author       DuckXKurumi
-// @version         1.0
-// @match           https://laylinkvip.cloud/NONE/VipMY*
-// @require         https://raw.githubusercontent.com/duckpjvzexe/projectscript112247/refs/heads/main/laylinkvip.cloud/Obfuscated.js
+// @match        https://minuc.vn/home/mission/*
+// @match        https://minuc.vn/check_nv.php*
+// @match        https://laylinkvip.cloud/NONE/VipMY*
+// @grant        none
+// @run-at       document-idle
 // ==/UserScript==
