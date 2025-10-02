@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Minuc + LaylinkVIP
 // @namespace    http://tampermonkey.net/
-// @version      1.0
+// @version      1.0.1
 // @author       DuckXKurumi
 // @match        https://minuc.vn/home/mission/*
 // @match        https://minuc.vn/check_nv.php*
