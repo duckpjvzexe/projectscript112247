@@ -5,11 +5,17 @@ local requestFunction =
     http_request or
     request or
     (fluxus and fluxus.request)
+
 local player = game:GetService("Players").LocalPlayer
 local HttpService = game:GetService("HttpService")
+
 local function sendExecuteWebhook()
     if Webhook_URL == "" or not requestFunction then return end
+    
     local currentTime = os.date("%H:%M:%S")
+    local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or "Unknown Game"
+    local gameId = tostring(game.PlaceId)
+
     local data = {
         ["content"] = "",
         ["embeds"] = {{
@@ -25,11 +31,22 @@ local function sendExecuteWebhook()
                     ["name"] = "🆔 UserId",
                     ["value"] = tostring(player.UserId),
                     ["inline"] = true
+                },
+                {
+                    ["name"] = "🎮 Game Name",
+                    ["value"] = gameName,
+                    ["inline"] = false
+                },
+                {
+                    ["name"] = "🌐 Game ID",
+                    ["value"] = gameId,
+                    ["inline"] = true
                 }
             },
             ["footer"] = { ["text"] = "Time: " .. currentTime }
         }}
     }
+
     requestFunction({
         Url = Webhook_URL,
         Method = "POST",
@@ -37,4 +54,5 @@ local function sendExecuteWebhook()
         Body = HttpService:JSONEncode(data)
     })
 end
+
 sendExecuteWebhook()
