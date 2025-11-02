@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Auto Minuc
 // @namespace    http://tampermonkey.net/
-// @version      1.0.2
+// @version      1.0.3
 // @author       DuckXKurumi
 // @match        https://minuc.vn/home/mission/*
 // @match        https://minuc.vn/check_nv.php*
