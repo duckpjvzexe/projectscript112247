@@ -1,6 +1,5 @@
 // ==UserScript==
 // @name         Auto Minuc
-// @namespace    http://tampermonkey.net/
 // @version      1.0.4
 // @author       DuckXKurumi
 // @match        https://minuc.vn/home/mission/*
