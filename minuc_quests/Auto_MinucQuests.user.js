@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Auto Minuc
-// @version      1.0.4
+// @version      1.0.5
 // @author       DuckXKurumi
 // @match        https://minuc.vn/home/mission/*
 // @match        https://minuc.vn/check_nv.php*
