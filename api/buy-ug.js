@@ -1,4 +1,14 @@
 export default async function handler(req, res) {
+    // ✅ CORS HEADERS
+    res.setHeader("Access-Control-Allow-Origin", "*");
+    res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", "Content-Type");
+
+    // ✅ Handle preflight
+    if (req.method === "OPTIONS") {
+        return res.status(200).end();
+    }
+
     if (req.method !== "POST") {
         return res.status(405).json({ success: false, message: "Method not allowed" });
     }
@@ -23,22 +33,18 @@ export default async function handler(req, res) {
     };
 
     try {
-        // 1️⃣ Check stock (1 lần)
+        // 1️⃣ Check stock
         const stockRes = await fetch(
             `${API_BASE}/dev/check_status_ugphone?token=${user_token}`
         );
 
-        if (!stockRes.ok) {
-            throw new Error("Check stock failed");
-        }
-
         const stockJson = await stockRes.json();
 
         if (!stockJson.success) {
-            throw new Error("Stock API trả về thất bại");
+            throw new Error("Check stock thất bại");
         }
 
-        // 2️⃣ Lấy server còn hàng
+        // 2️⃣ Server còn hàng
         const availableServers = Object.entries(stockJson.data)
             .filter(([_, v]) => v === true)
             .map(([k]) => SERVER_MAP[k]);
@@ -51,16 +57,13 @@ export default async function handler(req, res) {
         }
 
         // 3️⃣ Random server
-        const server = availableServers[
-            Math.floor(Math.random() * availableServers.length)
-        ];
+        const server =
+            availableServers[Math.floor(Math.random() * availableServers.length)];
 
         // 4️⃣ Mua máy
         const buyRes = await fetch(`${API_BASE}/dev/buy_device_cloud`, {
             method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 user_token,
                 cloud_id: "UG",
@@ -71,7 +74,6 @@ export default async function handler(req, res) {
 
         const buyJson = await buyRes.json();
 
-        // 5️⃣ Trả kết quả về client
         return res.json({
             success: true,
             selected_server: server,
