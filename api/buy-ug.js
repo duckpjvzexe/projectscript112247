@@ -1,19 +1,21 @@
 export default async function handler(req, res) {
-    // ✅ CORS HEADERS
+    // CORS
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", "Content-Type");
 
-    // ✅ Handle preflight
     if (req.method === "OPTIONS") {
         return res.status(200).end();
     }
 
     if (req.method !== "POST") {
-        return res.status(405).json({ success: false, message: "Method not allowed" });
+        return res.status(405).json({
+            success: false,
+            message: "Method not allowed"
+        });
     }
 
-    const { user_token, localstorage } = req.body;
+    const { user_token, localstorage } = req.body || {};
 
     if (!user_token || !localstorage) {
         return res.status(400).json({
@@ -21,8 +23,6 @@ export default async function handler(req, res) {
             message: "Thiếu user_token hoặc localstorage"
         });
     }
-
-    const API_BASE = "https://hoang.cloud";
 
     const SERVER_MAP = {
         America: "US",
@@ -35,16 +35,21 @@ export default async function handler(req, res) {
     try {
         // 1️⃣ Check stock
         const stockRes = await fetch(
-            `${API_BASE}/dev/check_status_ugphone?token=${user_token}`
+            `https://hoang.cloud/dev/check_status_ugphone?token=${user_token}`
         );
 
-        const stockJson = await stockRes.json();
+        const stockText = await stockRes.text();
+
+        if (stockText.startsWith("<")) {
+            throw new Error("Stock API trả HTML");
+        }
+
+        const stockJson = JSON.parse(stockText);
 
         if (!stockJson.success) {
             throw new Error("Check stock thất bại");
         }
 
-        // 2️⃣ Server còn hàng
         const availableServers = Object.entries(stockJson.data)
             .filter(([_, v]) => v === true)
             .map(([k]) => SERVER_MAP[k]);
@@ -56,28 +61,35 @@ export default async function handler(req, res) {
             });
         }
 
-        // 3️⃣ Random server
+        // 2️⃣ Random server
         const server =
             availableServers[Math.floor(Math.random() * availableServers.length)];
 
-        // 4️⃣ Mua máy
-        const buyRes = await fetch(`${API_BASE}/dev/buy_device_cloud`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-                user_token,
-                cloud_id: "UG",
-                server,
-                input_data: localstorage
-            })
-        });
+        // 3️⃣ Buy
+        const buyRes = await fetch(
+            "https://hoang.cloud/dev/buy_device_cloud",
+            {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    user_token,
+                    cloud_id: "UG",
+                    server,
+                    input_data: localstorage
+                })
+            }
+        );
 
-        const buyJson = await buyRes.json();
+        const buyText = await buyRes.text();
+
+        if (buyText.startsWith("<")) {
+            throw new Error("Buy API trả HTML");
+        }
 
         return res.json({
             success: true,
-            selected_server: server,
-            result: buyJson
+            server,
+            result: JSON.parse(buyText)
         });
 
     } catch (err) {
