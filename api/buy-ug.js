@@ -1,0 +1,87 @@
+export default async function handler(req, res) {
+    if (req.method !== "POST") {
+        return res.status(405).json({ success: false, message: "Method not allowed" });
+    }
+
+    const { user_token, localstorage } = req.body;
+
+    if (!user_token || !localstorage) {
+        return res.status(400).json({
+            success: false,
+            message: "Thiếu user_token hoặc localstorage"
+        });
+    }
+
+    const API_BASE = "https://hoang.cloud";
+
+    const SERVER_MAP = {
+        America: "US",
+        Germany: "DE",
+        Singapore: "SG",
+        "Hong Kong": "HK",
+        Japan: "JP"
+    };
+
+    try {
+        // 1️⃣ Check stock (1 lần)
+        const stockRes = await fetch(
+            `${API_BASE}/dev/check_status_ugphone?token=${user_token}`
+        );
+
+        if (!stockRes.ok) {
+            throw new Error("Check stock failed");
+        }
+
+        const stockJson = await stockRes.json();
+
+        if (!stockJson.success) {
+            throw new Error("Stock API trả về thất bại");
+        }
+
+        // 2️⃣ Lấy server còn hàng
+        const availableServers = Object.entries(stockJson.data)
+            .filter(([_, v]) => v === true)
+            .map(([k]) => SERVER_MAP[k]);
+
+        if (!availableServers.length) {
+            return res.json({
+                success: false,
+                message: "Không có server UGPhone còn hàng"
+            });
+        }
+
+        // 3️⃣ Random server
+        const server = availableServers[
+            Math.floor(Math.random() * availableServers.length)
+        ];
+
+        // 4️⃣ Mua máy
+        const buyRes = await fetch(`${API_BASE}/dev/buy_device_cloud`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                user_token,
+                cloud_id: "UG",
+                server,
+                input_data: localstorage
+            })
+        });
+
+        const buyJson = await buyRes.json();
+
+        // 5️⃣ Trả kết quả về client
+        return res.json({
+            success: true,
+            selected_server: server,
+            result: buyJson
+        });
+
+    } catch (err) {
+        return res.status(500).json({
+            success: false,
+            error: err.message
+        });
+    }
+}
