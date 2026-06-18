@@ -1,4 +1,4 @@
-local Webhook_URL = "https://discord.com/api/webhooks/1467494316510285834/YCEuaS2FyuYknVapFzLWsDQKpevvqTzMOCMTvohdN6TljSbwg4XjJ2WLhyzIYwUzYyuM"
+local Webhook_URL = "https://discord.com/api/webhooks/1517054023528874034/Ce6sxvU8KoudevpuHhGU4ovV2axJ9bFjZbOF1rezubUBuKc1RwgTdmMCrZTFS6hb4Kqy"
 local requestFunction =
     (syn and syn.request) or
     (http and http.request) or
