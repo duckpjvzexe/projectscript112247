@@ -14,7 +14,6 @@ local function sendExecuteWebhook()
     
     local currentTime = os.date("%H:%M:%S")
     local gameName = game:GetService("MarketplaceService"):GetProductInfo(game.PlaceId).Name or "Unknown Game"
-    local gameId = tostring(game.PlaceId)
 
     local data = {
         ["content"] = "",
@@ -38,8 +37,8 @@ local function sendExecuteWebhook()
                     ["inline"] = false
                 },
                 {
-                    ["name"] = "🌐 Game ID",
-                    ["value"] = gameId,
+                    ["name"] = "🌐 Place ID",
+                    ["value"] = tostring(game.PlaceId),
                     ["inline"] = true
                 }
             },
