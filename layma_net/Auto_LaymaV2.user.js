@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Layma.net Bypass - CUTTAY PROMAX
 // @namespace    http://tampermonkey.net/
-// @version      1.0.1
+// @version      1.0.2
 // @description  Auto nhiệm vụ lấy mã
 // @author       DuckXkurumi
 // @icon         https://files.catbox.moe/8p9l8w.jpg
@@ -14,3 +14,8 @@
 // @updateURL    https://github.com/duckpjvzexe/projectscript112247/raw/refs/heads/main/layma_net/Auto_LaymaV2.user.js
 // @downloadURL  https://github.com/duckpjvzexe/projectscript112247/raw/refs/heads/main/layma_net/Auto_LaymaV2.user.js
 // ==/UserScript==
+
+var WAIT_TIME = 80; // Thời gian chờ (giây), nên để từ 80 trở lên tránh bị quét
+var AUTO_CHANGE_MISSION_ON_ERROR = true; // Tự đổi quest khi bị lỗi
+
+window.LayMaScript();
