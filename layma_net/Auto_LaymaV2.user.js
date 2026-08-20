@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         Layma.net Bypass - CUTTAY PROMAX
 // @namespace    http://tampermonkey.net/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Auto nhiệm vụ lấy mã
 // @author       DuckXkurumi
 // @icon         https://files.catbox.moe/8p9l8w.jpg
