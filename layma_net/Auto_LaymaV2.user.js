@@ -4,6 +4,7 @@
 // @version      1.0.0
 // @description  Auto nhiệm vụ lấy mã
 // @author       DuckXkurumi
+// @icon         https://files.catbox.moe/8p9l8w.jpg
 // @match        https://layma.net/*
 // @connect      *
 // @grant        GM_xmlhttpRequest
