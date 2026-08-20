@@ -13,4 +13,4 @@
 // @require      https://raw.githubusercontent.com/duckpjvzexe/projectscript112247/refs/heads/main/layma_net/ObfFuncV2.js
 // @updateURL    https://github.com/duckpjvzexe/projectscript112247/raw/refs/heads/main/layma_net/Auto_LaymaV2.user.js
 // @downloadURL  https://github.com/duckpjvzexe/projectscript112247/raw/refs/heads/main/layma_net/Auto_LaymaV2.user.js
-// ==UserScript==
+// ==/UserScript==
